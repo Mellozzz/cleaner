@@ -6,24 +6,31 @@ import os
 TOKEN = os.environ['TOKEN']          # Your bot token
 GUILD_ID = int(os.environ['GUILD_ID'])  # Your server ID
 
-# ---------------- BOT SETUP ----------------
 intents = discord.Intents.default()
 bot = commands.Bot(command_prefix="!", intents=intents)
 
-# ---------------- CLEAN & SYNC ----------------
 @bot.event
 async def on_ready():
+    print(f"Logged in as {bot.user}")
+
+    # Use Object() for guild
     guild = discord.Object(id=GUILD_ID)
 
-    # 1️⃣ Clear all guild commands
-    await bot.tree.clear_commands(guild=guild)
-    print("✅ Cleared all old guild commands!")
+    # Clear old slash commands for this guild
+    try:
+        await bot.tree.clear_commands(guild=guild)
+        print("✅ Cleared all old guild commands!")
+    except Exception as e:
+        print("❌ Error clearing commands:", e)
 
-    # 2️⃣ Sync only current commands
-    synced = await bot.tree.sync(guild=guild)
-    print(f"✅ Synced {len(synced)} commands to guild {GUILD_ID}")
+    # Sync only current commands to this guild
+    try:
+        synced = await bot.tree.sync(guild=guild)
+        print(f"✅ Synced {len(synced)} commands to guild {GUILD_ID}")
+    except Exception as e:
+        print("❌ Error syncing commands:", e)
 
-    # Done — close the bot
+    # Done — close bot
     await bot.close()
 
 bot.run(TOKEN)
